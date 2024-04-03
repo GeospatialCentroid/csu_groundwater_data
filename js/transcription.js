@@ -56,6 +56,22 @@ class Transcription {
         //populate id
         $(".data_sheet_id").val(_id)
         var timestamp=new Date()
+         this.show_data(_id)
+    }
+    show_data(_id){
+          var html=""
+         //use the _id to see whether there is data
+          if (typeof(this.grouped_data[_id])!="undefined"){
+
+                for(var i=0;i<this.grouped_data[_id].length;i++){
+                      html+='<div class="row">'
+                      html+='<div class="col">'+this.grouped_data[_id][i].date+'</div>'
+                       html+='<div class="col">'+this.grouped_data[_id][i].measure+'</div>'
+                      html+='</div>'
+                }
+
+          }
+         $("#transcription_data").html(html);
     }
     setup_date_field(){
         $(".data_form_date").datetimepicker({
@@ -70,6 +86,8 @@ class Transcription {
 
     }
     post_all_forms(){
+        $("#data_form_save_but").prop("disabled",true);
+        $("#data_form_save_but").addClass("progress-bar progress-bar-striped progress-bar-animated");
         var $this=this
         this.posts=[]
         $("#data_form").children().each(function( index ) {
@@ -95,9 +113,21 @@ class Transcription {
             type: "POST",
             success: function(d){
                //show your success
-               console.log(d)
-//               $this.posts.shift()
-//               $this.post_form()
+                 console.log(d)
+                 $("#data_form_save_but").prop("disabled",false);
+                 $("#data_form_save_but").removeClass("progress-bar progress-bar-striped progress-bar-animated");
+                 // append data to the group
+                 var _id=$this.posts[0]["id"];
+                 if (typeof($this.grouped_data[_id])=="undefined"){
+                    $this.grouped_data[_id]=[]
+                 }
+                 for(var i=0;i<$this.posts.length;i++){
+                     $this.grouped_data[_id].push($this.posts[i])
+                }
+                // append the data to the marker
+                map_manager.highlight_marker(_id)
+                //if visible - reshow the form
+
             },
             error: function(x,y,z){
                 //show your error message

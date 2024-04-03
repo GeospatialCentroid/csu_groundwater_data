@@ -10,9 +10,11 @@ class Image_Manager {
              center: [0, 0],
               zoom:  1,
               crs: L.CRS.Simple,
+              rotate:true,
 
         })
         this.image_map._resetView(this.image_map.getCenter(), this.image_map.getZoom());
+        this.degrees=0
         }
      show_image(img,attribution,info_page){
         $("#image_map").width("75%")
@@ -39,6 +41,10 @@ class Image_Manager {
         this.image_map.attributionControl._attributions = {};
         this.image_map.attributionControl.addAttribution("<a href=\""+info_page+"\" target=\"_new\">"+attribution+"</a>");
 
+     }
+     rotate_image(){
+        this.degrees+=90
+        this.image_map.setBearing(this.degrees);
      }
     hide_image(){
 

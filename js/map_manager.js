@@ -17,7 +17,9 @@ class Map_Manager {
     }else{
         this.params={}
     }
-     this.map = L.map('map',{doubleClickZoom: false}).setView([this.lat, this.lng], this.z);
+     this.map = L.map('map',{doubleClickZoom: false,
+     }).setView([this.lat, this.lng], this.z);
+     this.markers=[]
   }
   init(){
     var $this=this
@@ -122,7 +124,7 @@ class Map_Manager {
             "date":data[i]["Date"],*/
               }
              if(data[i].data){
-                obj_props["data"]= data[i].data
+                obj_props["has_data"]= true
              }
 
             output_json["features"].push({ "type": 'Feature', "properties": obj_props,
@@ -148,17 +150,26 @@ class Map_Manager {
           },
           pointToLayer: function (feature, latlng) {
                 var extra=''
-                if(feature.properties.data){
-                extra='style="border-color: black;"'
+                if(feature.properties.has_data){
+                    extra='style="border-color: black;"'
                 }
-                return L.marker(latlng, {icon: $this.get_marker_icon(extra)});
+                var marker= L.marker(latlng, {icon: $this.get_marker_icon(extra)});
+                $this.markers.push(marker);//track the marker
+                return marker
             }
         });
         clustered_points.addLayer(geojson_markers);
         this.map.addLayer(clustered_points);
 
     }
-
+    highlight_marker(_id){
+        for(var i=0;i<this.markers.length;i++){
+            if(this.markers[i].feature.properties.id==_id){
+                var extra='style="border-color: black;"'
+                this.markers[i]._icon.innerHTML='<span class="marker" '+extra+'/>'
+            }
+        }
+    }
     get_marker_icon(extra){
         // define a default marker
         return L.divIcon({

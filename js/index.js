@@ -26,6 +26,8 @@ var last_params={}
 var usp={};// the url params object to be populated
 var browser_control=false; //flag for auto selecting to prevent repeat cals
 
+var progress_interval;
+
 var geo_locations="https://docs.google.com/spreadsheets/d/e/2PACX-1vRbGI3aCfUlvPm1ctzPWjdHqqFueh6lZB71bK5bxh_OhGNctO317h9aQJn9C98u6rjGNan5-T4kxZA2/pub?gid=1548886854&single=true&output=csv"
 
 
@@ -49,7 +51,15 @@ function setup_params(){
 }
 
 window.onload = function() {
+         //simulate progress - load up to 90%
+      var current_progress = 0;
+     progress_interval = setInterval(function() {
+          current_progress += 5;
+          $("#loader").css("width", current_progress + "%")
+          if (current_progress >= 90)
+              clearInterval(progress_interval);
 
+      }, 100);
 };
 $(document).ready(function() {
     load_do(csv,init)
@@ -121,15 +131,25 @@ function check_all_loaded(){
     //and the transcriptions are loaded
   if(transcription_mode){
     if(transcription.data && map_manager.data){
-     transcription.group_transcription()
-     transcription.connect_transcription()
-     map_manager.create_geojson()
+        transcription.group_transcription()
+        transcription.connect_transcription()
+        all_done()
     }
-
   }else{
-     map_manager.create_geojson()
-
+        all_done()
   }
+}
+function all_done(){
+     clearInterval(progress_interval)
+        $("#loader").css("width", 100 + "%")
+        setTimeout( function() {
+
+            $(".overlay").fadeOut("slow", function () {
+                $(this).css({display:"none",'background-color':"none"});
+            });
+        },600);
+
+     map_manager.create_geojson()
 }
 
 function save_params(){
